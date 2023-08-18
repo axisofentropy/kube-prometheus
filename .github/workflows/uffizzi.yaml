@@ -1,0 +1,43 @@
+name: uffizzi
+on:
+  pull_request:
+    types: [opened,reopened,synchronize,closed]
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+env:
+  golang-version: '1.19'
+  KUBECONFIG: ${{ github.workspace }}/kubeconfig
+
+jobs:
+  e2e-tests:
+    name: E2E tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        persist-credentials: false
+    - uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.golang-version }}
+    - name: Connect to Virtual Cluster
+      uses: UffizziCloud/cluster-action@main
+      with:
+        cluster-name: pr-${{ github.event.pull_request.number }}
+        kubeconfig: ${{ env.KUBECONFIG }}
+    - name: Install kube-router for NetworkPolicy support
+      run: |
+        kubectl apply -f .github/workflows/kind/kube-router.yaml
+    - name: Wait for cluster to finish bootstraping
+      run: kubectl wait --for=condition=Ready pods --all --all-namespaces --timeout=300s
+    - name: Create kube-prometheus stack
+      run: |
+        kubectl create -f manifests/setup
+        until kubectl get servicemonitors --all-namespaces ; do date; sleep 1; echo ""; done
+        kubectl create -f manifests/
+    - name: Run tests
+      run: |
+        make test-e2e
