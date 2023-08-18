@@ -10,7 +10,7 @@ permissions:
 
 env:
   golang-version: '1.19'
-  KUBECONFIG: kubconfig
+  KUBECONFIG: kubeconfig
 
 jobs:
   e2e-tests:
