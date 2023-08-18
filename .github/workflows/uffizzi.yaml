@@ -26,6 +26,7 @@ jobs:
       uses: UffizziCloud/cluster-action@main
       with:
         cluster-name: pr-${{ github.event.pull_request.number }}
+        kubeconfig: .kube/config
     - name: Install kube-router for NetworkPolicy support
       run: |
         kubectl apply -f .github/workflows/kind/kube-router.yaml
