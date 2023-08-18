@@ -10,7 +10,7 @@ permissions:
 
 env:
   golang-version: '1.19'
-  KUBECONFIG: kubeconfig
+  KUBECONFIG: ${{ github.workspace }}/kubeconfig
 
 jobs:
   e2e-tests:
@@ -27,7 +27,7 @@ jobs:
       uses: UffizziCloud/cluster-action@main
       with:
         cluster-name: pr-${{ github.event.pull_request.number }}
-        kubeconfig: kubeconfig
+        kubeconfig: ${{ env.KUBECONFIG }}
     - name: Install kube-router for NetworkPolicy support
       run: |
         kubectl apply -f .github/workflows/kind/kube-router.yaml
