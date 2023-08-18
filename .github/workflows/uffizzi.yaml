@@ -10,6 +10,7 @@ permissions:
 
 env:
   golang-version: '1.19'
+  KUBECONFIG: kubconfig
 
 jobs:
   e2e-tests:
@@ -26,7 +27,7 @@ jobs:
       uses: UffizziCloud/cluster-action@main
       with:
         cluster-name: pr-${{ github.event.pull_request.number }}
-        kubeconfig: .kube/config
+        kubeconfig: kubeconfig
     - name: Install kube-router for NetworkPolicy support
       run: |
         kubectl apply -f .github/workflows/kind/kube-router.yaml
@@ -39,5 +40,4 @@ jobs:
         kubectl create -f manifests/
     - name: Run tests
       run: |
-        export KUBECONFIG="${HOME}/.kube/config"
         make test-e2e
