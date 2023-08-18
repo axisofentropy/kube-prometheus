@@ -1,8 +1,16 @@
-name: ci
+name: uffizzi
 on:
-  - pull_request
+  pull_request:
+    types: [opened,reopened,synchronize,closed]
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
 env:
   golang-version: '1.19'
+
 jobs:
   e2e-tests:
     name: E2E tests
